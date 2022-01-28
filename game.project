@@ -1,5 +1,5 @@
 [project]
-title = Mallowfinder
+title = RPGFold
 dependencies#0 = https://github.com/Jrayp/Moku/archive/Alpha_v2.2.zip
 dependencies#1 = https://github.com/britzl/defold-orthographic/archive/master.zip
 
@@ -19,10 +19,10 @@ height = 720
 shared_state = 1
 
 [windows]
-app_icon = /assets/app_icons/appicon.ico
+app_icon = 
 
 [osx]
-app_icon = /assets/app_icons/appicon.icns
+app_icon = 
 
 [android]
 input_method = HiddenInputField

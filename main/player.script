@@ -3,6 +3,21 @@ local camera = require("orthographic.camera")
 local selected = {}
 local moving = false
 local delay = 0.2
+local FACE = "down"
+
+local moving_anims = {
+  left = hash("moving_left"),
+  right = hash("moving_right"),
+  up = hash("moving_up"),
+  down = hash("moving_down")
+}
+
+local idle_anims = {
+  left = hash("idle_left"),
+  right = hash("idle_right"),
+  up = hash("idle_up"),
+  down = hash("idle_down")
+}
 
 local moku_ids = {
     WALL = 1,
@@ -15,6 +30,35 @@ local tile_costs = {
     [0] = -1
 }
 
+local function setFace(oldPos, newPos)
+    if (newPos.x > oldPos.x) then
+      FACE = "right"
+    elseif (newPos.x < oldPos.x) then
+      FACE = "left"
+    elseif (newPos.x == oldPos.x) then
+      if (newPos.y > oldPos.y) then
+      FACE = "up"
+    elseif (newPos.y < oldPos.y) then
+      FACE = "down"
+    else
+      FACE = "down"
+    end
+  end
+end
+
+local function move_to_tile(map, tile, url, animate, currentPos)
+    local setX, setY = moku.cell_center(map, map.pos.x, map.pos.y, tile.moku_x, tile.moku_y)
+    if currentPos ~= nil then
+      setFace(currentPos, vmath.vector3(setX, setY, currentPos.z))
+    end
+    if animate == false then
+    go.set(url, "position", vmath.vector3(setX, setY, 1))
+  else
+    local newPos = vmath.vector3(setX, setY, go.get_position(url).z)
+    go.animate(url, "position", go.PLAYBACK_ONCE_FORWARD, newPos, go.EASING_LINEAR, delay)
+  end
+end
+
 local function cost_fn(args)
     return args.user[args.to_cell.moku_id]
 end
@@ -23,8 +67,8 @@ function init(self)
     msg.post(".", "acquire_input_focus")
     msg.post("camera", "acquire_camera_focus")
     msg.post("@render:", "use_fixed_fit_projection", {near = 0, far = 15})
-    self.map = moku.new_from_tm("/world#main", "layer1", 16, 16)
-    self.mapPos = go.get_position("/world")
+    self.map = moku.new_from_tm("/world#main", "layer1", 32, 32)
+    self.map.pos = go.get_position("/world")
     self.map.pathfinder.allowed_directions = moku.dir_tables.CARDINAL
 end
 
@@ -32,11 +76,10 @@ function on_input(self, action_id, action)
     if action.x and action.y then
         local mousePos = camera.screen_to_world(nil, vmath.vector3(action.x, action.y, 1))
 
-        local tile = moku.pick_cell(self.map, self.mapPos.x, self.mapPos.y, mousePos.x, mousePos.y)
+        local tile = moku.pick_cell(self.map, self.map.pos.x, self.map.pos.y, mousePos.x, mousePos.y)
 
         if tile ~= nil then
-            local setX, setY = moku.cell_center(self.map, self.mapPos.x, self.mapPos.y, tile.moku_x, tile.moku_y)
-            go.set("/selector", "position", vmath.vector3(setX, setY, 1))
+          move_to_tile(self.map, tile, "/selector", false)
         end
     end
 
@@ -47,9 +90,9 @@ function on_input(self, action_id, action)
             end
 
             local mousePos = camera.screen_to_world(nil, vmath.vector3(action.x, action.y, 1))
-            local tile = moku.pick_cell(self.map, self.mapPos.x, self.mapPos.y, mousePos.x, mousePos.y)
+            local tile = moku.pick_cell(self.map, self.map.pos.x, self.map.pos.y, mousePos.x, mousePos.y)
             local player =
-                moku.pick_cell(self.map, self.mapPos.x, self.mapPos.y, go.get_position().x, go.get_position().y)
+                moku.pick_cell(self.map, self.map.pos.x, self.map.pos.y, go.get_position().x, go.get_position().y)
 
             if tile == nil then
                 return
@@ -72,7 +115,6 @@ function on_input(self, action_id, action)
 
             local path_size = table.maxn(path)
 
-            msg.post("/player#sprite", "play_animation", {id = hash("moving")})
             msg.post("/selector#sprite", "play_animation", {id = hash("confirm")})
 
             self.moveTimer =
@@ -83,23 +125,13 @@ function on_input(self, action_id, action)
                     if iterator > path_size - 1 then
                         moving = false
                         timer.cancel(self.moveTimer)
+                        msg.post("/player#sprite", "play_animation", { id = idle_anims[FACE]})
                         self.moveTimer = nil
-                        msg.post("#sprite", "play_animation", {id = hash("player")})
                         return
                     end
                     iterator = iterator + 1
-
-                    local newX, newY =
-                        moku.cell_center(
-                        self.map,
-                        self.mapPos.x,
-                        self.mapPos.y,
-                        path[iterator].moku_x,
-                        path[iterator].moku_y
-                    )
-                    local newPos = vmath.vector3(newX, newY, go.get_position().z)
-
-                    go.animate(".", "position", go.PLAYBACK_ONCE_FORWARD, newPos, go.EASING_LINEAR, delay)
+                    msg.post("/player#sprite", "play_animation", {id = moving_anims[FACE]})
+                    move_to_tile(self.map, path[iterator], "/player", true, go.get_position())
                 end
             )
         else
@@ -110,6 +142,6 @@ end
 
 function on_message(self, message_id, message, sender)
     if message_id == hash("animation_done") then
-        msg.post("/selector#sprite", "play_animation", {id = hash("normal")})
+        msg.post("/selector#sprite", "play_animation", { id = hash("normal")})
     end
 end

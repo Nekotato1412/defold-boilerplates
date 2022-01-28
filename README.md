@@ -1,5 +1,5 @@
-# Mallowfinder
-# *A Defold Click to Move Pathfinding Template*
+# RPGFold
+# *A Defold RPG Game Template*
 
 ## Purpose
 The purpose of this template is for my own personal projects but you are welcome to use all code included in your own projects with no additional cost. Credit is not required but welcome if you so choose to do so. This code is for the [Defold engine](https://github.com/defold).

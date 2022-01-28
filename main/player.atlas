@@ -1,30 +1,75 @@
 images {
-  image: "/assets/images/player/player_burned.png"
+  image: "/assets/images/player/idle/idle_down.png"
   sprite_trim_mode: SPRITE_TRIM_MODE_OFF
 }
 images {
-  image: "/assets/images/player/player_cracked.png"
+  image: "/assets/images/player/idle/idle_left.png"
   sprite_trim_mode: SPRITE_TRIM_MODE_OFF
 }
 images {
-  image: "/assets/images/player/player_roasted.png"
+  image: "/assets/images/player/idle/idle_right.png"
   sprite_trim_mode: SPRITE_TRIM_MODE_OFF
 }
 images {
-  image: "/assets/images/player/player.png"
+  image: "/assets/images/player/idle/idle_up.png"
   sprite_trim_mode: SPRITE_TRIM_MODE_OFF
 }
 animations {
-  id: "moving"
+  id: "moving_down"
   images {
-    image: "/assets/images/player/player_hop.png"
+    image: "/assets/images/player/move/move_down.png"
     sprite_trim_mode: SPRITE_TRIM_MODE_OFF
   }
   images {
-    image: "/assets/images/player/player.png"
+    image: "/assets/images/player/idle/idle_down.png"
     sprite_trim_mode: SPRITE_TRIM_MODE_OFF
   }
-  playback: PLAYBACK_LOOP_BACKWARD
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 4
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "moving_left"
+  images {
+    image: "/assets/images/player/move/move_left.png"
+    sprite_trim_mode: SPRITE_TRIM_MODE_OFF
+  }
+  images {
+    image: "/assets/images/player/idle/idle_left.png"
+    sprite_trim_mode: SPRITE_TRIM_MODE_OFF
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 4
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "moving_up"
+  images {
+    image: "/assets/images/player/move/move_up.png"
+    sprite_trim_mode: SPRITE_TRIM_MODE_OFF
+  }
+  images {
+    image: "/assets/images/player/idle/idle_up.png"
+    sprite_trim_mode: SPRITE_TRIM_MODE_OFF
+  }
+  playback: PLAYBACK_LOOP_FORWARD
+  fps: 4
+  flip_horizontal: 0
+  flip_vertical: 0
+}
+animations {
+  id: "moving_right"
+  images {
+    image: "/assets/images/player/move/move_right.png"
+    sprite_trim_mode: SPRITE_TRIM_MODE_OFF
+  }
+  images {
+    image: "/assets/images/player/idle/idle_right.png"
+    sprite_trim_mode: SPRITE_TRIM_MODE_OFF
+  }
+  playback: PLAYBACK_LOOP_FORWARD
   fps: 4
   flip_horizontal: 0
   flip_vertical: 0
